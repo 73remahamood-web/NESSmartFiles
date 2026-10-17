@@ -35,7 +35,7 @@ class IndexDb(context: Context) : SQLiteOpenHelper(context, "nes_index.db", null
     ).use { c -> c.moveToFirst() && c.getLong(0) == file.length() && c.getLong(1) == file.lastModified() }
 
     fun markSeen(path: String, run: Long) {
-        writableDatabase.execSQL("UPDATE files SET seen_run=? WHERE path=?", arrayOf(run, path))
+        writableDatabase.execSQL("UPDATE files SET seen_run=? WHERE path=?", arrayOf<Any?>(run, path))
     }
 
     fun replace(file: File, run: Long, extraction: Extractors.Extraction) {
@@ -63,7 +63,7 @@ class IndexDb(context: Context) : SQLiteOpenHelper(context, "nes_index.db", null
                     put("file_id", id); put("location", location); put("body", text)
                 }
                 val chunkId = db.insertOrThrow("chunks", null, values)
-                db.execSQL("INSERT INTO chunk_fts(rowid, body) VALUES (?, ?)", arrayOf(chunkId, text))
+                db.execSQL("INSERT INTO chunk_fts(rowid, body) VALUES (?, ?)", arrayOf<Any?>(chunkId, text))
             }
             db.setTransactionSuccessful()
         } finally { db.endTransaction() }
@@ -158,7 +158,7 @@ class IndexDb(context: Context) : SQLiteOpenHelper(context, "nes_index.db", null
         }
         db.insertOrThrow("messages", null, data)
         if (role == "user") db.execSQL("UPDATE conversations SET title=CASE WHEN title='محادثة جديدة' THEN ? ELSE title END, updated_at=? WHERE id=?",
-            arrayOf(text.take(55), System.currentTimeMillis(), conversation))
+            arrayOf<Any?>(text.take(55), System.currentTimeMillis(), conversation))
     }
     fun getConversations(): List<Pair<Long, String>> = readableDatabase.rawQuery(
         "SELECT id,title FROM conversations ORDER BY updated_at DESC LIMIT 100", null
