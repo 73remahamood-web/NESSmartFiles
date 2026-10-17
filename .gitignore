@@ -1,0 +1,10 @@
+.gradle/
+.idea/
+*.iml
+local.properties
+**/build/
+vendor/llama.cpp/
+vendor/llama-ref.txt
+*.gguf
+*.zip
+*.apk
