@@ -33,6 +33,10 @@ jobs:
           sdkmanager 'platforms;android-36' 'build-tools;35.0.0' 'ndk;29.0.13113456' 'cmake;3.31.6'
       - name: Load llama.cpp Android module
         run: bash scripts/fetch-llama.sh
+      - name: Set Android 12 minimum SDK
+        run: |
+          sed -i "s/minSdk = 33/minSdk = 31/" vendor/llama.cpp/examples/llama.android/lib/build.gradle.kts
+          grep -n "minSdk" vendor/llama.cpp/examples/llama.android/lib/build.gradle.kts
       - name: Build Debug APK
         run: gradle :app:assembleDebug --no-daemon --stacktrace
       - name: Upload APK
