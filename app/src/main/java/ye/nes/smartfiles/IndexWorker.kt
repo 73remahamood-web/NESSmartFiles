@@ -3,7 +3,7 @@ package ye.nes.smartfiles
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.ServiceInfo
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.Environment
 import androidx.core.app.NotificationCompat
