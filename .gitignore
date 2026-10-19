@@ -8,3 +8,8 @@ vendor/llama-ref.txt
 *.gguf
 *.zip
 *.apk
+
+# Never commit signing secrets
+*.jks
+*.keystore
+*.p12

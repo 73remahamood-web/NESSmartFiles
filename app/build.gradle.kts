@@ -7,15 +7,35 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = "ye.nes.smartfiles"
-        minSdk = 31
+        minSdk = 33
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0-alpha"
+        versionCode = 2
+        versionName = "0.2.0-alpha"
         ndk { abiFilters += "arm64-v8a" }
     }
+    signingConfigs {
+        create("nesStable") {
+            val keystorePath = System.getenv("NES_KEYSTORE_PATH")
+            if (!keystorePath.isNullOrBlank()) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("NES_KEYSTORE_PASS")
+                keyAlias = System.getenv("NES_KEY_ALIAS") ?: "nes"
+                keyPassword = System.getenv("NES_KEY_PASS")
+            }
+        }
+    }
     buildTypes {
-        release { isMinifyEnabled = false; isShrinkResources = false }
-        debug { isMinifyEnabled = false }
+        release {
+            isMinifyEnabled = false; isShrinkResources = false
+            if (!System.getenv("NES_KEYSTORE_PATH").isNullOrBlank())
+                signingConfig = signingConfigs.getByName("nesStable")
+        }
+        debug {
+            isMinifyEnabled = false
+            // Keep debug + run-as for v0.1 data migration; stable key makes future APKs updatable.
+            if (!System.getenv("NES_KEYSTORE_PATH").isNullOrBlank())
+                signingConfig = signingConfigs.getByName("nesStable")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

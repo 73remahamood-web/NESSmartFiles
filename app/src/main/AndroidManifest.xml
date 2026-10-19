@@ -10,6 +10,8 @@
         android:theme="@style/NesTheme"
         android:label="NES Smart Files"
         android:supportsRtl="true">
+        <activity android:name=".IndexDashboardActivity" android:exported="false" />
+        <activity android:name=".ModelManagerActivity" android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

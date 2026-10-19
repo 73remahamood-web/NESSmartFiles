@@ -33,17 +33,30 @@ jobs:
           sdkmanager 'platforms;android-36' 'build-tools;35.0.0' 'ndk;29.0.13113456' 'cmake;3.31.6'
       - name: Load llama.cpp Android module
         run: bash scripts/fetch-llama.sh
-      - name: Set Android 12 minimum SDK
+      - name: Build Android APK (stable signing if configured)
+        env:
+          NES_KEYSTORE_B64: ${{ secrets.NES_KEYSTORE_B64 }}
+          NES_KEYSTORE_PASS: ${{ secrets.NES_KEYSTORE_PASS }}
+          NES_KEY_ALIAS: ${{ secrets.NES_KEY_ALIAS }}
+          NES_KEY_PASS: ${{ secrets.NES_KEY_PASS }}
         run: |
-          sed -i "s/minSdk = 33/minSdk = 31/" vendor/llama.cpp/examples/llama.android/lib/build.gradle.kts
-          grep -n "minSdk" vendor/llama.cpp/examples/llama.android/lib/build.gradle.kts
-      - name: Build Debug APK
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+          set -euo pipefail
+          if [ -n "${NES_KEYSTORE_B64:-}" ]; then
+            printf '%s' "$NES_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/nes-signing.jks"
+            chmod 600 "$RUNNER_TEMP/nes-signing.jks"
+            export NES_KEYSTORE_PATH="$RUNNER_TEMP/nes-signing.jks"
+            echo 'Stable signing available: building DEBUG APK with persistent signing certificate'
+          else
+            echo 'WARNING: NO STABLE SIGNING: ephemeral DEBUG APK cannot update earlier debug installs.'
+          fi
+          gradle :app:assembleDebug --no-daemon --stacktrace
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: NES-Smart-Files-Android-APK
-          path: app/build/outputs/apk/debug/*.apk
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
           if-no-files-found: error
           retention-days: 30
       - name: Upload build details
